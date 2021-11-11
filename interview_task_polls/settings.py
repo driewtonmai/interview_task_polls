@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     # local apps
     'admin_panel.apps.AdminPanelConfig',
+    'polls.apps.PollsConfig',
 ]
 
 MIDDLEWARE = [
