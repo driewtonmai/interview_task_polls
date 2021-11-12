@@ -1,13 +1,15 @@
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
 
-from polls.models import Poll, Question, QuestionOptions, OptionChoices
+from polls.models import Poll, Question, AnswerOptions, OptionChoices
 
-from .serializers import AdminLoginSerializer, PollListSerializer, PollCreateSerializer, PollDetailSerializer
+from .serializers import AdminLoginSerializer, PollListSerializer, PollCreateSerializer, PollDetailSerializer, \
+    QuestionSerializer, QuestionCreateSerializer
 
 
 class AdminLoginView(APIView):
@@ -61,3 +63,46 @@ class PollDetailView(APIView):
         poll = self.get_object(pk)
         poll.delete()
         return Response(status.HTTP_204_NO_CONTENT)
+
+
+class QuestionListCreateAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, polls_pk):
+        queryset = Question.objects.filter(poll__id=polls_pk)
+        serializer = QuestionSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, polls_pk):
+        poll = get_object_or_404(Poll, pk=polls_pk)
+        serializer = QuestionCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(poll=poll)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class QuestionDetailAPIView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get_object(self, polls_pk, questions_pk):
+        try:
+            return Question.objects.get(poll__id=polls_pk, pk=questions_pk)
+        except Question.DoesNotExist:
+            raise Http404
+
+    def get(self, request, polls_pk, questions_pk):
+        question = self.get_object(polls_pk, questions_pk)
+        serializer = QuestionSerializer(question)
+        return Response(serializer.data)
+
+    def put(self, request, polls_pk, questions_pk):
+        question = self.get_object(polls_pk, questions_pk)
+        serializer = QuestionCreateSerializer(question, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def delete(self, request, polls_pk, questions_pk):
+        question = self.get_object(polls_pk, questions_pk)
+        question.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -41,25 +41,27 @@ class Question(models.Model):
 
 class OptionChoices(models.Model):
     text = models.CharField(verbose_name='текст', max_length=250)
+    question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE,
+                                 related_name='option_choices')
 
     def __str__(self):
         return self.text
 
 
-class QuestionOptions(models.Model):
-    option_choice = models.ManyToManyField(OptionChoices, verbose_name='вариант ответа')
+class AnswerOptions(models.Model):
+    option_choice = models.ForeignKey(OptionChoices, verbose_name='вариант ответа', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'Варианты ответа вопроса: "{self.question}"'
+        return f'Вариант "{self.option_choice}" вопроса: "{self.question}"'
 
 
 class Answer(models.Model):
-    question_options = models.ForeignKey(QuestionOptions, verbose_name='вопрос', on_delete=models.CASCADE)
+    answer_options = models.ForeignKey(AnswerOptions, verbose_name='вопрос', on_delete=models.CASCADE)
     text = models.CharField(verbose_name='текст', max_length=250, blank=True)
 
     def __str__(self):
-        return self.text
+        return self.text or str(self.answer_options)
 
 
 class UserSelectedPoll(models.Model):
@@ -68,3 +70,6 @@ class UserSelectedPoll(models.Model):
 
     def __str__(self):
         return self.poll.name
+
+    class Meta:
+        unique_together = ['poll', 'passed_user']
