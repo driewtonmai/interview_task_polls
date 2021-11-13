@@ -48,20 +48,26 @@ class OptionChoices(models.Model):
         return self.text
 
 
-class AnswerOptions(models.Model):
-    option_choice = models.ForeignKey(OptionChoices, verbose_name='вариант ответа', on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'Вариант "{self.option_choice}" вопроса: "{self.question}"'
-
-
 class Answer(models.Model):
-    answer_options = models.ForeignKey(AnswerOptions, verbose_name='вопрос', on_delete=models.CASCADE)
     text = models.CharField(verbose_name='текст', max_length=250, blank=True)
 
     def __str__(self):
-        return self.text or str(self.answer_options)
+        try:
+            answer_option = self.answeroptions_set.first()
+            msg = answer_option.question.text
+        except AttributeError:
+            msg = "Данный ответ не имеет вопроса"
+        return msg
+
+
+class AnswerOptions(models.Model):
+    option_choice = models.ForeignKey(OptionChoices, verbose_name='вариант ответа', on_delete=models.CASCADE,
+                                      null=True, blank=True)
+    question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE)
+    answer = models.ForeignKey(Answer, verbose_name='ответ', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Вариант "{self.option_choice}" вопроса: "{self.question}"'
 
 
 class UserSelectedPoll(models.Model):
