@@ -1,9 +1,8 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from rest_framework.validators import UniqueTogetherValidator
 
-from polls.models import Poll, Question, AnswerOptions, OptionChoices
+from polls.models import Poll, Question, OptionChoices
 
 from .validators import validate_type_for_create, validate_type_for_update
 

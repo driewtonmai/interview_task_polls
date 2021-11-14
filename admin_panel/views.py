@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.authentication import BasicAuthentication
 from rest_framework import status
 
-from polls.models import Poll, Question, AnswerOptions, OptionChoices
+from polls.models import Poll, Question
 
 from .serializers import AdminLoginSerializer, PollListSerializer, PollCreateSerializer, PollDetailSerializer, \
     QuestionSerializer, QuestionCreateSerializer
