@@ -50,32 +50,38 @@ class OptionChoices(models.Model):
 
 class Answer(models.Model):
     text = models.CharField(verbose_name='текст', max_length=250, blank=True)
+    question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE)
+    user_selected_poll = models.ForeignKey('UserSelectedPoll', verbose_name='опрос', on_delete=models.CASCADE)
 
     def __str__(self):
-        try:
-            answer_option = self.answeroptions_set.first()
-            msg = answer_option.question.text
-        except AttributeError:
-            msg = "Данный ответ не имеет вопроса"
-        return msg
+        return f'Ответ вопроса "{self.question.text}"'
 
 
 class AnswerOptions(models.Model):
     option_choice = models.ForeignKey(OptionChoices, verbose_name='вариант ответа', on_delete=models.CASCADE,
                                       null=True, blank=True)
-    question = models.ForeignKey(Question, verbose_name='вопрос', on_delete=models.CASCADE)
     answer = models.ForeignKey(Answer, verbose_name='ответ', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'Вариант "{self.option_choice}" вопроса: "{self.question}"'
+        return f'Вариант "{self.option_choice}"'
+
+
+class Client(models.Model):
+    login = models.BigIntegerField(verbose_name='ID пользователя', unique=True)
+
+    def __str__(self):
+        return str(self.login)
 
 
 class UserSelectedPoll(models.Model):
     poll = models.ForeignKey(Poll, verbose_name='опрос', on_delete=models.CASCADE)
-    passed_user = models.BigIntegerField(verbose_name='ID пользователя')
+    client = models.ForeignKey(Client, verbose_name='пользователь', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.poll.name
 
     class Meta:
-        unique_together = ['poll', 'passed_user']
+        unique_together = ['poll', 'client']
+
+
+
