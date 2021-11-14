@@ -1,0 +1,3 @@
+TEXT = 1
+SELECT = 2
+MULTI_SELECT = 3
