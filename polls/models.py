@@ -1,6 +1,6 @@
 from django.db import models
-from datetime import date
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 QUESTION_TYPES = (
@@ -13,7 +13,7 @@ QUESTION_TYPES = (
 class Poll(models.Model):
     name = models.CharField(verbose_name='название', max_length=200)
     description = models.TextField(verbose_name='описание')
-    start_date = models.DateField(verbose_name='дата старта', default=date.today())
+    start_date = models.DateField(verbose_name='дата старта', default=timezone.now().today())
     end_date = models.DateField(verbose_name='дата окончания')
     draft = models.BooleanField(verbose_name='черновик', default=True)
     created_by = models.ForeignKey(User, verbose_name='автор', on_delete=models.PROTECT)
