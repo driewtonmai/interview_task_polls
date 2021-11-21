@@ -2,18 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from .constants import TEXT, SELECT, MULTI_SELECT
 
 QUESTION_TYPES = (
-    (1, 'text'),
-    (2, 'select'),
-    (3, 'multi-select'),
+    (TEXT, 'text'),
+    (SELECT, 'select'),
+    (MULTI_SELECT, 'multi-select'),
 )
 
 
 class Poll(models.Model):
     name = models.CharField(verbose_name='название', max_length=200)
     description = models.TextField(verbose_name='описание')
-    start_date = models.DateField(verbose_name='дата старта', default=timezone.now().today())
+    start_date = models.DateField(verbose_name='дата старта', default=timezone.now().today)
     end_date = models.DateField(verbose_name='дата окончания')
     draft = models.BooleanField(verbose_name='черновик', default=True)
     created_by = models.ForeignKey(User, verbose_name='автор', on_delete=models.PROTECT)
