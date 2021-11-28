@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from .constants import TEXT, SELECT, MULTI_SELECT
 
+
 QUESTION_TYPES = (
     (TEXT, 'text'),
     (SELECT, 'select'),
@@ -24,11 +25,16 @@ class Poll(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def published_day_amount(self):
+        amount_days = (self.end_date - self.start_date)
+        return amount_days
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'опрос'
         verbose_name_plural = 'Опросы'
-        unique_together = ['name', 'created_at']
+        unique_together = ['name', 'start_date']
 
 
 class Question(models.Model):
