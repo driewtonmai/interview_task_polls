@@ -18,14 +18,10 @@ class AdminLoginSerializer(serializers.Serializer):
         username = attrs.get('username')
         password = attrs.get('password')
 
-        if username and password:
-            user = authenticate(request=self.context.get('request'), username=username, password=password)
+        user = authenticate(request=self.context.get('request'), username=username, password=password)
 
-            if not user:
-                msg = 'Введенные данные неправильны.'
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = 'Пожалуйста введите логин и пароль'
+        if not user:
+            msg = 'Введенные данные неправильны.'
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user
