@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -29,6 +30,10 @@ class Poll(models.Model):
     def published_day_amount(self):
         amount_days = (self.end_date - self.start_date)
         return amount_days
+
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError('Дата окончания не может быть раньше даты старта')
 
     class Meta:
         ordering = ['-created_at']
