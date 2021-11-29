@@ -45,13 +45,27 @@ class PollListCreateAPIViewTest(APITestCase):
     def test_create_poll_POST(self):
         Poll.objects.all().delete()
         self.client.force_authenticate(user=self.user)
-        data = {'name': 'Test Poll', 'description': 'test poll desc.',
-                'end_date': '2022-1-13', 'start_date': '2021-12-30'}
+        data = {'name': 'Test Poll',
+                'description': 'test poll desc.',
+                'end_date': '2022-1-13',
+                'start_date': '2021-12-30'
+                }
         response = self.client.post(self.url, data, format='json')
 
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Poll.objects.count(), 1)
         self.assertTrue(Poll.objects.filter(name='Test Poll').exists())
+
+    def test_validate_start_end_dates_POST(self):
+        self.client.force_authenticate(user=self.user)
+        data = {'name': 'Test Poll',
+                'description': 'test poll desc.',
+                'end_date': '2021-10-9',
+                'start_date': '2021-10-10'
+                }
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class AdminLoginAPIViewTest(APITestCase):
@@ -124,7 +138,7 @@ class PollDetailAPIViewTest(APITestCase):
         data = {
             "name": "Опрос о коррупции",
             "description": "Пожалуйста ответьте на все вопросы.",
-            "end_date": "2021-11-15",
+            "end_date": "2022-11-15",
         }
         response = self.client.put(self.url, data)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
