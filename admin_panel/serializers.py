@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -18,14 +19,10 @@ class AdminLoginSerializer(serializers.Serializer):
         username = attrs.get('username')
         password = attrs.get('password')
 
-        if username and password:
-            user = authenticate(request=self.context.get('request'), username=username, password=password)
+        user = authenticate(request=self.context.get('request'), username=username, password=password)
 
-            if not user:
-                msg = 'Введенные данные неправильны.'
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = 'Пожалуйста введите логин и пароль'
+        if not user:
+            msg = 'Введенные данные неправильны.'
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user
@@ -52,6 +49,13 @@ class PollCreateSerializer(serializers.ModelSerializer):
                 fields=['name', 'start_date']
             )
         ]
+
+    def validate(self, data):
+        end_date = data['end_date']
+        start_date = data.get('start_date', timezone.now().date())
+        if end_date < start_date:
+            raise serializers.ValidationError('Дата окончания не может быть раньше даты старта')
+        return data
 
     def update(self, instance, validated_data):
         if validated_data.get('start_date'):

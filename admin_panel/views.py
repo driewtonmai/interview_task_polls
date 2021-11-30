@@ -12,7 +12,7 @@ from .serializers import AdminLoginSerializer, PollListSerializer, PollCreateSer
     QuestionSerializer, QuestionCreateSerializer
 
 
-class AdminLoginView(APIView):
+class AdminLoginAPIView(APIView):
     authentication_classes = [BasicAuthentication]
 
     def post(self, request):
@@ -38,7 +38,7 @@ class PollListCreateAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class PollDetailView(APIView):
+class PollDetailAPIView(APIView):
     permission_classes = [IsAdminUser]
 
     def get_object(self, pk):

@@ -1,19 +1,22 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from .constants import TEXT, SELECT, MULTI_SELECT
+
 
 QUESTION_TYPES = (
-    (1, 'text'),
-    (2, 'select'),
-    (3, 'multi-select'),
+    (TEXT, 'text'),
+    (SELECT, 'select'),
+    (MULTI_SELECT, 'multi-select'),
 )
 
 
 class Poll(models.Model):
     name = models.CharField(verbose_name='название', max_length=200)
     description = models.TextField(verbose_name='описание')
-    start_date = models.DateField(verbose_name='дата старта', default=timezone.now().today())
+    start_date = models.DateField(verbose_name='дата старта', default=timezone.now().today)
     end_date = models.DateField(verbose_name='дата окончания')
     draft = models.BooleanField(verbose_name='черновик', default=True)
     created_by = models.ForeignKey(User, verbose_name='автор', on_delete=models.PROTECT)
@@ -23,11 +26,20 @@ class Poll(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def published_day_amount(self):
+        amount_days = (self.end_date - self.start_date)
+        return amount_days
+
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError('Дата окончания не может быть раньше даты старта')
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'опрос'
         verbose_name_plural = 'Опросы'
-        unique_together = ['name', 'created_at']
+        unique_together = ['name', 'start_date']
 
 
 class Question(models.Model):
