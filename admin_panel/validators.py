@@ -8,7 +8,7 @@ def validate_type_for_create(validated_data):
         if not validated_data.get('option_choices'):
             raise serializers.ValidationError('Пожалуйста заполните варианты ответа')
     elif validated_data['type'] == TEXT:
-        if not validated_data.get('options'):
+        if validated_data.get('option_choices'):
             raise serializers.ValidationError('У вопроса формата "текст" не должно быть дополнительных полей')
 
 
