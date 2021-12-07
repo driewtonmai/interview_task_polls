@@ -111,18 +111,18 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
         except KeyError:
             choices_data = []
         question = Question.objects.create(**validated_data)
+
         for choice in choices_data:
             choice['question'] = question
             OptionChoices.objects.create(**choice)
         return question
 
     def update(self, instance, validated_data):
+        validate_type_for_update(validated_data)
         try:
             choices_data = validated_data.pop('option_choices')
         except KeyError:
             choices_data = []
-
-        validate_type_for_update(validated_data, choices_data)
 
         instance.type = validated_data.get('type', instance.type)
         instance.text = validated_data.get('text', instance.text)
